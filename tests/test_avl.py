@@ -157,3 +157,142 @@ class AVLTreeTest(unittest.TestCase):
         a[2] = 'c'
         self.assertEqual(a[2], "c")
         self.assertEqual(len(a), 3)
+
+    def test_delete_causes_key_error(self):
+        a = AVLTree()
+        with self.assertRaises(KeyError):
+            del a[1]
+
+    def test_delete_node_with_left_case(self):
+        a = AVLTree()
+
+        a[5] = 'a'
+        a[1] = 'b'
+        expected = a._root.left
+
+        del a[5]
+        self.assertEqual(a._root, expected)
+
+    def test_delete_node_with_right_case(self):
+        a = AVLTree()
+
+        a[5] = 'a'
+        a[6] = 'b'
+        expected = a._root.right
+
+        del a[5]
+        self.assertEqual(a._root, expected)
+
+    def test_delete_node_with_none_case(self):
+        a = AVLTree()
+        a[5] = 'a'
+        del a[5]
+        self.assertIsNone(a._root)
+
+    def test_delete_node_recurses_left(self):
+        a = AVLTree()
+        a[5] = 'a'
+        a[4] = 'a'
+        del a[4]
+        self.assertIsNone(a._root.left)
+
+    def test_delete_node_recurses_right(self):
+        a = AVLTree()
+        a[5] = 'a'
+        a[6] = 'a'
+        del a[6]
+        self.assertIsNone(a._root.right)
+
+    def test_delete_node_with_both_case(self):
+        a = AVLTree()
+        a[5] = 'a'
+        a[4] = 'a'
+        a[6] = 'a'
+        expected = a._root.right
+        del a[5]
+        self.assertEqual(a._root, expected)
+
+    def test_delete_keeps_avl_property(self):
+        a = AVLTree()
+        a[5] = 'a'
+        a[3] = 'a'
+        a[7] = 'a'
+        a[1] = 'a'
+        a[4] = 'a'
+        a[8] = 'a'
+        a[2] = 'a'
+        
+        # Because this is complex (to me), i am asserting the expected
+        # structure just to make sure i didn't messup the setup.
+
+        #     5
+        #    / \
+        #   3   7
+        #  / \   \
+        # 1   4   8
+        #  \
+        #   2
+
+        r = a._root
+        self.assertEqual(r.key, 5)
+        self.assertEqual(r.left.key, 3)
+        self.assertEqual(r.left.left.key, 1)
+        self.assertEqual(r.left.left.right.key, 2)
+        self.assertEqual(r.left.right.key, 4)
+        self.assertEqual(r.right.key, 7)
+        self.assertEqual(r.right.right.key, 8)
+
+        # Delete key 7 should cause a rebalance that looks like this
+
+        #      3
+        #     / \
+        #    /   \
+        #   1     5
+        #    \   / \
+        #     2 4   8
+
+        del a[7]
+
+        r = a._root
+        self.assertEqual(r.key, 3)
+        self.assertEqual(r.left.key, 1)
+        self.assertEqual(r.left.right.key, 2)
+        self.assertEqual(r.right.key, 5)
+        self.assertEqual(r.right.left.key, 4)
+        self.assertEqual(r.right.right.key, 8)
+
+    def test_delete_empty_node_updates_len(self):
+        a = AVLTree()
+        a[5] = 'a'
+        a[3] = 'a'
+        a[7] = 'a'
+        del a[7]
+        self.assertEqual(2, len(a))
+
+    def test_delete_node_with_left_updates_len(self):
+        a = AVLTree()
+        a[5] = 'a'
+        a[3] = 'a'
+        a[7] = 'a'
+        a[6] = 'a'
+        del a[7]
+        self.assertEqual(3, len(a))
+
+    def test_delete_node_with_right_updates_len(self):
+        a = AVLTree()
+        a[5] = 'a'
+        a[3] = 'a'
+        a[7] = 'a'
+        a[9] = 'a'
+        del a[7]
+        self.assertEqual(3, len(a))
+
+    def test_delete_node_with_left_and_right_updates_len(self):
+        a = AVLTree()
+        a[5] = 'a'
+        a[3] = 'a'
+        a[7] = 'a'
+        a[6] = 'a'
+        a[9] = 'a'
+        del a[7]
+        self.assertEqual(4, len(a))
