@@ -109,7 +109,7 @@ class AVLTreeTest(unittest.TestCase):
         a[2] = "a"
         a[1] = "a"
         a[3] = "a"
-        self.assertEqual(a._root.height, 1)
+        self.assertEqual(a.root.height, 1)
 
     def test_depth_7_nodes(self):
         a = AVLTree()
@@ -120,7 +120,7 @@ class AVLTreeTest(unittest.TestCase):
         a[5] = "a"
         a[6] = "a"
         a[7] = "a"
-        self.assertEqual(a._root.height, 2)
+        self.assertEqual(a.root.height, 2)
 
     def test_depth_8_nodes(self):
         a = AVLTree()
@@ -132,21 +132,21 @@ class AVLTreeTest(unittest.TestCase):
         a[6] = "a"
         a[7] = "a"
         a[8] = "a"
-        self.assertEqual(a._root.height, 3)
+        self.assertEqual(a.root.height, 3)
 
     def test_left_right_balance(self):
         a = AVLTree()
         a[5] = 'a'
         a[3] = 'a'
         a[4] = 'a'
-        self.assertEqual(a._root.height, 1)
+        self.assertEqual(a.root.height, 1)
 
     def test_right_left_balance(self):
         a = AVLTree()
         a[5] = 'a'
         a[7] = 'a'
         a[6] = 'a'
-        self.assertEqual(a._root.height, 1)
+        self.assertEqual(a.root.height, 1)
 
     def test_update_in_place(self):
         a = AVLTree()
@@ -168,49 +168,49 @@ class AVLTreeTest(unittest.TestCase):
 
         a[5] = 'a'
         a[1] = 'b'
-        expected = a._root.left
+        expected = a.root.left
 
         del a[5]
-        self.assertEqual(a._root, expected)
+        self.assertEqual(a.root, expected)
 
     def test_delete_node_with_right_case(self):
         a = AVLTree()
 
         a[5] = 'a'
         a[6] = 'b'
-        expected = a._root.right
+        expected = a.root.right
 
         del a[5]
-        self.assertEqual(a._root, expected)
+        self.assertEqual(a.root, expected)
 
     def test_delete_node_with_none_case(self):
         a = AVLTree()
         a[5] = 'a'
         del a[5]
-        self.assertIsNone(a._root)
+        self.assertIsNone(a.root)
 
     def test_delete_node_recurses_left(self):
         a = AVLTree()
         a[5] = 'a'
         a[4] = 'a'
         del a[4]
-        self.assertIsNone(a._root.left)
+        self.assertIsNone(a.root.left)
 
     def test_delete_node_recurses_right(self):
         a = AVLTree()
         a[5] = 'a'
         a[6] = 'a'
         del a[6]
-        self.assertIsNone(a._root.right)
+        self.assertIsNone(a.root.right)
 
     def test_delete_node_with_both_case(self):
         a = AVLTree()
         a[5] = 'a'
         a[4] = 'a'
         a[6] = 'a'
-        expected = a._root.right
+        expected = a.root.right
         del a[5]
-        self.assertEqual(a._root, expected)
+        self.assertEqual(a.root, expected)
 
     def test_delete_keeps_avl_property(self):
         a = AVLTree()
@@ -233,7 +233,7 @@ class AVLTreeTest(unittest.TestCase):
         #  \
         #   2
 
-        r = a._root
+        r = a.root
         self.assertEqual(r.key, 5)
         self.assertEqual(r.left.key, 3)
         self.assertEqual(r.left.left.key, 1)
@@ -253,7 +253,7 @@ class AVLTreeTest(unittest.TestCase):
 
         del a[7]
 
-        r = a._root
+        r = a.root
         self.assertEqual(r.key, 3)
         self.assertEqual(r.left.key, 1)
         self.assertEqual(r.left.right.key, 2)

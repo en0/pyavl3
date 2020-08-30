@@ -1,8 +1,8 @@
-from typing import Hashable, Tuple, Iterator
+from typing import Hashable, Tuple, Iterator, Iterable, Union, Dict
 
 from .avl_node import AVLNode
 from .interface import ADTInterface
-from .traversal import InOrderTraversal
+from .traversal import InOrderTraversal, BreadthFirstTraversal
 
 
 class AVLTree(ADTInterface):
@@ -10,14 +10,46 @@ class AVLTree(ADTInterface):
     # Used for iterator
     traversal = InOrderTraversal
 
-    def __init__(self) -> None:
-        self._root = None
-        self._n = 0
+    @property
+    def root(self) -> AVLNode:
+        """Gets the current root"""
+        return self._root
+
+    def __init__(
+        self,
+        iterable: Union[
+            Dict[Hashable, any],
+            Iterable[Tuple[Hashable, any]],
+            "AVLTree"
+        ] = None,
+        **kwargs,
+    ) -> None:
+        self._root: AVLNode
+        self._n: int
+
+        self.clear()
+
+        if isinstance(iterable, dict):
+            for k, v in iterable.items():
+                self[k] = v
+
+        elif isinstance(iterable, AVLTree):
+            for n in BreadthFirstTraversal(iterable, lambda x: x):
+                self[n.key] = n.value
+
+        elif iterable is not None:
+            for k, v in iterable:
+                self[k] = v
+
+        for k, v in kwargs.items():
+            self[k] = v
 
     def __getitem__(self, key: Hashable) -> any:
         """Get the value at the given key.
 
         If the key is not found, a KeyError will be raised.
+
+        O(logn) - The AVL tree is balanced, h is always near log(n).
         """
         node = self._get(self._root, key)
         if node is None:
@@ -25,32 +57,178 @@ class AVLTree(ADTInterface):
         return node.value
 
     def __setitem__(self, key: Hashable, value: any) -> None:
-        """Add or Update the given key using the given value."""
+        """Add or Update the given key using the given value.
+
+        O(logn) - The AVL tree is balanced, h is always near log(n).
+                  rebalance operation is done in-line on stack return.
+        """
         node = AVLNode(key, value)
         self._root = self._insert(self._root, node)
 
     def __delitem__(self, key: Hashable) -> None:
-        """Remove the given key from the tree."""
+        """Remove the given key from the tree.
+
+        O(logn) - Delete operation might have to do a secondary lookup
+                  when swapping nodes in wort-case deletes. The actual
+                  execution might be 2logn if a delete requires a swap
+        """
         self._root = self._delete(self._root, key)
 
     def __len__(self) -> int:
-        """Return the count of members in the tree."""
+        """Return the count of members in the tree.
+
+        O(1) - length is maintained during operations that modify it.
+        """
         return self._n
 
     def __contains__(self, key: Hashable) -> bool:
-        """Check if a given key exists in the tree"""
+        """Check if a given key exists in the tree
+
+        O(logn) - The AVL tree is balanced, h is always near log(n).
+        """
         return self._get(self._root, key) is not None
 
     def __iter__(self) -> Iterator[Tuple[Hashable, any]]:
-        """Create and return an iterator"""
-        return AVLTree.traversal(self._root)
+        """Create and return an iterator
+
+        By default this creates an InOrderTraversal iterator. This
+        functionality can be overriden by setting AVLTree.traversal
+        to another implementation.
+
+        O(n) - and that is all i am going to say about that.
+        """
+        return AVLTree.traversal(self, lambda x: (x.key, x.value))
+
+    def __repr__(self) -> str:
+        """Return a string reprsentation of the AVLTree
+
+        O(n) - This repr prints every member much like dict.
+        """
+        m = BreadthFirstTraversal(self, lambda x: f"{x.key}: {x.value}")
+        s = ", ".join(m)
+        return f"<AVL {{{s}}}>"
 
     def get(self, key: Hashable, default: any = None) -> any:
-        """Get the value at the given key or default."""
+        """Get the value at the given key or default.
+
+        O(logn) - The AVL tree is balanced, h is always near log(n).
+        """
         node = self._get(self._root, key)
         if node is None:
             return default
         return node.value
+
+    def keys(self) -> Iterator[Hashable]:
+        """Create and return a key iterator
+
+        By default this creates an InOrderTraversal iterator. This
+        functionality can be overriden by setting AVLTree.traversal
+        to another implementation.
+
+        O(n) - and that is all i am going to say about that.
+        """
+        return AVLTree.traversal(self, lambda x: x.key)
+
+    def items(self) -> Iterator[Tuple[Hashable, any]]:
+        """Create and return a item iterator
+
+        By default this creates an InOrderTraversal iterator. This
+        functionality can be overriden by setting AVLTree.traversal
+        to another implementation.
+
+        O(n) - and that is all i am going to say about that.
+        """
+        return iter(self)
+
+    def values(self) -> Iterator[Hashable]:
+        """Create and return a value iterator
+
+        By default this creates an InOrderTraversal iterator. This
+        functionality can be overriden by setting AVLTree.traversal
+        to another implementation.
+
+        O(n) - and that is all i am going to say about that.
+        """
+        return AVLTree.traversal(self, lambda x: x.value)
+
+    def clear(self) -> None:
+        """Clear all nodes from the tree.
+
+        O(1) - If you ignore GC
+        """
+        self._root = None
+        self._n = 0
+
+    def copy(self) -> "AVLTree":
+        """A shallow copy of the AVLTree
+
+        O(n) - When copying the order is done in a way that
+               avoids rebalance operations. It's as quick as
+               it can be without magic.
+        """
+        # using a breadth first traversal will eliminate the need
+        # for rebalances needed when constructing the new root.
+        return AVLTree(self)
+
+    def setdefault(self, key: Hashable, value: any) -> None:
+        """Insert key with the given value into the tree if it does not exist.
+
+        O(logn) - The AVL tree is balanced, h is always near log(n).
+        """
+        if key not in self:
+            self[key] = value
+
+    def update(
+        self,
+        iterable: Union[
+            Dict[Hashable, any],
+            Iterable[Tuple[Hashable, any]],
+            "AVLTree"
+        ] = None,
+        **kwargs
+    ) -> None:
+        """Update the AVLTree using keys from given iterable
+
+        O(vlogn) - where v is the number of items being updated.
+        """
+        if isinstance(iterable, dict):
+            for k, v in iterable.items():
+                self[k] = v
+        elif isinstance(iterable, AVLTree):
+            for n in BreadthFirstTraversal(iterable, lambda x: x):
+                self[n.key] = n.value
+        elif iterable is not None:
+            for k, v in iterable:
+                self[k] = v
+        for k, v in kwargs.items():
+            self[k] = v
+
+    def pop(self, key: Hashable) -> any:
+        """Pop an item out of the Tree and return the value.
+
+        O(logn) - This method actualy calls 2 logn methods.
+        """
+        _, value = self.popitem(key)
+        return value
+
+    def popitem(self, key: Hashable) -> Tuple[Hashable, any]:
+        """Pop an item out of the Tree and return the key and value.
+
+        O(logn) - This method actualy calls 2 logn methods.
+        """
+        n = self._get(self._root, key)
+        if n is None:
+            raise KeyError(key)
+        self._root = self._delete(self._root, n.key)
+        return n.key, n.value
+
+    @classmethod
+    def fromkeys(cls, iterable: Iterable[Hashable], value: any = None) -> "AVLTree":
+        """Returns a new AVLTree with keys from iterable and values equal to value.
+
+        O(n) - Rebalance operations are likely so it's a slow O(n)
+        """
+        return AVLTree([(k, value) for k in iterable])
 
     def _get(self, root: AVLNode, key: Hashable) -> AVLNode:
         """Find a key in the given subtree"""
