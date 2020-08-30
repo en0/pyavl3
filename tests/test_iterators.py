@@ -13,7 +13,7 @@ class AVLIteratorTests(unittest.TestCase):
         ]
         for k, v in values:
             a[k] = v
-        self.assert_list(iter(a), values)
+        self.assert_list(iter(a), [k for k, _ in values])
 
     def test_item_iterator(self):
         a = AVLTree()

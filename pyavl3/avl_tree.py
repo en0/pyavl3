@@ -97,7 +97,7 @@ class AVLTree(ADTInterface):
 
         O(n) - and that is all i am going to say about that.
         """
-        return AVLTree.traversal(self, lambda x: (x.key, x.value))
+        return AVLTree.traversal(self, lambda x: x.key)
 
     def __repr__(self) -> str:
         """Return a string reprsentation of the AVLTree
@@ -138,7 +138,7 @@ class AVLTree(ADTInterface):
 
         O(n) - and that is all i am going to say about that.
         """
-        return iter(self)
+        return AVLTree.traversal(self, lambda x: (x.key, x.value))
 
     def values(self) -> Iterator[Hashable]:
         """Create and return a value iterator

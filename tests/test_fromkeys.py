@@ -10,5 +10,5 @@ class AVLTreeFromKeysTest(unittest.TestCase):
 
     def test_from_array(self):
         a = AVLTree.fromkeys([1, 2, 3], None)
-        self.assertListEqual(list(a), [(1, None), (2, None), (3, None)])
+        self.assertListEqual(list(a.items()), [(1, None), (2, None), (3, None)])
 

@@ -53,21 +53,21 @@ class AVLTreeTest(unittest.TestCase):
         a[3] = "a"
         a[2] = "b"
         a[1] = "c"
-        self.assertListEqual([1,2,3], [k for k, _ in a])
+        self.assertListEqual([1,2,3], list(a.keys()))
 
     def test_traversal_on_right_heavy(self):
         a = AVLTree()
         a[1] = "a"
         a[2] = "b"
         a[3] = "c"
-        self.assertListEqual([1,2,3], [k for k, _ in a])
+        self.assertListEqual([1,2,3], list(a.keys()))
 
     def test_traversal_on_balanced(self):
         a = AVLTree()
         a[2] = "a"
         a[1] = "b"
         a[3] = "c"
-        self.assertListEqual([1,2,3], [k for k, _ in a])
+        self.assertListEqual([1,2,3], list(a.keys()))
 
     def test_len_on_left_heavy(self):
         a = AVLTree()
