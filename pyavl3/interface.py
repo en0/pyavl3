@@ -1,5 +1,14 @@
-from typing import Hashable, Iterator, Tuple, Union, Dict, Iterable
 from abc import ABC, abstractmethod, abstractclassmethod
+from typing import (
+    Hashable,
+    Generator,
+    Iterator,
+    Tuple,
+    Union,
+    Dict,
+    Iterable,
+    Callable,
+)
 
 from .avl_node import AVLNode
 
@@ -37,6 +46,10 @@ class ADTInterface(ABC):
 
     @abstractmethod
     def __repr__(self) -> str:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def __bool__(self) -> bool:
         raise NotImplementedError()
 
     @abstractmethod
@@ -85,3 +98,6 @@ class ADTInterface(ABC):
     @abstractclassmethod
     def fromkeys(self) -> "AVLTree":
         raise NotImplementedError()
+
+
+SearchAlgorithm = Callable[[ADTInterface], Generator[Tuple[Hashable, any], None, None]]

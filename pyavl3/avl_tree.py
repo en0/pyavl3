@@ -108,6 +108,13 @@ class AVLTree(ADTInterface):
         s = ", ".join(m)
         return f"<AVL {{{s}}}>"
 
+    def __bool__(self) -> bool:
+        """Return True if the Tree has members. Else, false.
+
+        O(1) - because root is not null.
+        """
+        return self._root is not None
+
     def get(self, key: Hashable, default: any = None) -> any:
         """Get the value at the given key or default.
 

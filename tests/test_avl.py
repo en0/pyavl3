@@ -296,3 +296,12 @@ class AVLTreeTest(unittest.TestCase):
         a[9] = 'a'
         del a[7]
         self.assertEqual(4, len(a))
+
+    def test_is_not_empty(self):
+        a = AVLTree()
+        a[1] = 'a'
+        self.assertTrue(bool(a))
+
+    def test_is_empty(self):
+        a = AVLTree()
+        self.assertFalse(bool(a))
